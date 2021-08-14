@@ -1,4 +1,5 @@
 import os
+from random import randrange
 
 import httplib2
 from googleapiclient.discovery import build
@@ -34,7 +35,43 @@ sheet = service.spreadsheets()
 # https://docs.google.com/spreadsheets/d/1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk/edit#gid=0
 sheet_id = "1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk"
 
+
 # https://developers.google.com/resources/api-libraries/documentation/sheets/v4/python/latest/sheets_v4.spreadsheets.html
-resp = sheet.values().get(spreadsheetId=sheet_id, range="Лист1").execute()
+
+def get_values():
+    values = [[randrange(10, 99)]]
+    # values = [[randrange(10, 99) for _ in range(0, 3)]]
+    # values = [[randrange(10, 99)] for _ in range(0, 3)]
+    # values = [[randrange(10, 99) for _ in range(0, 3)] for _ in range(0, 3)]
+    return values
+
+
+# https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
+resp = sheet.values().update(
+    spreadsheetId=sheet_id,
+    range="Лист2!A1",
+    valueInputOption="RAW",
+    body={'values' : get_values() }).execute()
+
+
+# https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
+# resp = sheet.values().append(
+#     spreadsheetId=sheet_id,
+#     range="Лист2!A1",
+#     valueInputOption="RAW",
+#     # insertDataOption="OVERWRITE",
+#     body={'values' : get_values() }).execute()
+
+# https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchUpdate
+# body = {
+#     'valueInputOption' : 'RAW',
+#     'data' : [
+#         {'range' : 'Лист2!D2', 'values' : get_values()},
+#         {'range' : 'Лист2!H4', 'values' : get_values()}
+#     ]
+# }
+#
+# resp = sheet.values().batchUpdate(spreadsheetId=sheet_id, body=body).execute()
+
 
 print(resp)
