@@ -35,9 +35,9 @@ sheet = service.spreadsheets()
 sheet_id = "1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk"
 
 # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
-resp = sheet.values().get(spreadsheetId=sheet_id, range="Лист1").execute()
+# resp = sheet.values().get(spreadsheetId=sheet_id, range="Лист1!A1:A999").execute()
 
 # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchGet
-# resp = sheet.values().batchGet(spreadsheetId=sheet_id, ranges=["Лист1", "Лист2"]).execute()
+resp = sheet.values().batchGet(spreadsheetId=sheet_id, ranges=["Лист1", "Лист2"]).execute()
 
 print(resp)
