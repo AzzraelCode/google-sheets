@@ -8,10 +8,6 @@ import creds
 
 
 def get_service_simple():
-    """
-    Могу читать таблицы созданные под своим же аккаунтом
-    :return:
-    """
     return build('sheets', 'v4', developerKey=creds.api_key)
 
 
@@ -31,11 +27,12 @@ def get_service_sacc():
     return build('sheets', 'v4', http=creds_service)
 
 
-sheet_id = "1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk"
-
 # service = get_service_simple()
 service = get_service_sacc()
 sheet = service.spreadsheets()
+
+# https://docs.google.com/spreadsheets/d/1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk/edit#gid=0
+sheet_id = "1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk"
 
 # https://developers.google.com/resources/api-libraries/documentation/sheets/v4/python/latest/sheets_v4.spreadsheets.html
 resp = sheet.values().get(spreadsheetId=sheet_id, range="Лист1").execute()
