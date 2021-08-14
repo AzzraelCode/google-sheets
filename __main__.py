@@ -39,4 +39,5 @@ sheet = service.spreadsheets()
 
 # https://developers.google.com/resources/api-libraries/documentation/sheets/v4/python/latest/sheets_v4.spreadsheets.html
 resp = sheet.values().get(spreadsheetId=sheet_id, range="Лист1").execute()
+
 print(resp)
