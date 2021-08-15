@@ -31,8 +31,8 @@ def get_service_sacc():
 service = get_service_sacc()
 sheet = service.spreadsheets()
 
-# https://docs.google.com/spreadsheets/d/1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk/edit#gid=0
-sheet_id = "1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk"
+# https://docs.google.com/spreadsheets/d/xxx/edit#gid=0
+sheet_id = "xxx"
 
 # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
 # resp = sheet.values().get(spreadsheetId=sheet_id, range="Лист1!A1:A999").execute()
