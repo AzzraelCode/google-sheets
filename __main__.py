@@ -8,6 +8,12 @@ from oauth2client.service_account import ServiceAccountCredentials
 import creds
 
 
+"""
+Эта ветка для Видео о записи в электронные таблицы Google Sheets
+с помощью API Google Sheets 
+https://youtu.be/RV-aN_WEFPE
+"""
+
 def get_service_simple():
     return build('sheets', 'v4', developerKey=creds.api_key)
 
