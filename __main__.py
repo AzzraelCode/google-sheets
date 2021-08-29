@@ -5,18 +5,11 @@ import httplib2
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 
-import creds
-
-
 """
 Эта ветка для Видео о записи в электронные таблицы Google Sheets
 с помощью API Google Sheets 
 https://youtu.be/RV-aN_WEFPE
 """
-
-def get_service_simple():
-    return build('sheets', 'v4', developerKey=creds.api_key)
-
 
 def get_service_sacc():
     """
@@ -33,49 +26,98 @@ def get_service_sacc():
     creds_service = ServiceAccountCredentials.from_json_keyfile_name(creds_json, scopes).authorize(httplib2.Http())
     return build('sheets', 'v4', http=creds_service)
 
-
-sheet = get_service_sacc().spreadsheets()
-
+# Плейлист Google Sheets API https://www.youtube.com/playlist?list=PLWVnIRD69wY75tQAmyMFP-WBKXqJx8Wpq
 # https://docs.google.com/spreadsheets/d/xxx/edit#gid=0
-sheet_id = "xxx"
+spreadsheet_id = "1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk"
 
+# Получаю ID листа в электронной таблице
+# Нужен для repeatCell/range/sheetId
+# https://docs.google.com/spreadsheets/d/1IfE0sBAkKvhB6F8zHkEozEE0jpwhAU_G4UubwKTV1Bk/edit#gid=758897038
+# https://docs.google.com/spreadsheets/d/<ID электронной таблицы (spreadsheet ID)>/edit#gid=<ID листа (sheet ID) >
+# sheet_id = 758897038
+resp = get_service_sacc().spreadsheets().get(spreadsheetId=spreadsheet_id, ranges=["Лист3"], includeGridData=False).execute()
+sheet_id = resp.get("sheets")[0].get("properties").get("sheetId")
 
-# https://developers.google.com/resources/api-libraries/documentation/sheets/v4/python/latest/sheets_v4.spreadsheets.html
+def get_random_color() -> dict:
+    """
+    Создаю случайный цвет с альфа каном
+    https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/other#Color
+    :return:
+    """
+    return {
+        "red": randrange(0, 255) / 255,
+        "green": randrange(0, 255) / 255,
+        "blue": randrange(0, 255) / 255,
+        "alpha": randrange(0, 10) / 10 # 0.0 - прозрачный
+    }
 
-def get_values():
-    values = [[randrange(10, 99)]]
-    # values = [[randrange(10, 99) for _ in range(0, 6)]]
-    # values = [[randrange(10, 99)] for _ in range(0, 3)]
-    # values = [[randrange(10, 99) for _ in range(0, 3)] for _ in range(0, 3)]
-    return values
+# https://developers.google.com/sheets/api/samples/formatting
 
-
-# https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update
-resp = sheet.values().update(
-    spreadsheetId=sheet_id,
-    range="Лист2!H1",
-    valueInputOption="RAW",
-    body={'values' : get_values() }).execute()
-
-
-# https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
-# resp = sheet.values().append(
-#     spreadsheetId=sheet_id,
-#     range="Лист2!A1",
-#     valueInputOption="RAW",
-#     # insertDataOption="INSERT_ROWS",
-#     body={'values' : get_values() }).execute()
-
-# https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/batchUpdate
-# body = {
-#     'valueInputOption' : 'RAW',
-#     'data' : [
-#         {'range' : 'Лист2!D2', 'values' : get_values()},
-#         {'range' : 'Лист2!H4', 'values' : get_values()}
-#     ]
+# ТАК сделано В ВИДЕО и так работает, однако ....
+# body={
+#     "requests" : { ### <<<<<--- тут словарь, так не надо
+#         # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#repeatcellrequest
+#         "repeatCell": {
+#             # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/other#GridRange
+#             "range": {
+#                 "sheetId": sheet_id,
+#                 "startRowIndex": 2,
+#                 "startColumnIndex": 2,
+#                 "endColumnIndex": 7,
+#                 "endRowIndex": 6,
+#             },
+#             # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/cells
+#             # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/cells#CellFormat
+#             "cell": {
+#                 "userEnteredFormat": {
+#                     "backgroundColor" : get_random_color(),
+#                     "horizontalAlignment": "LEFT",
+#                     "textFormat": {
+#                         "foregroundColor": get_random_color(),
+#                         "fontFamily": "Arial",
+#                         "bold": False
+#                     }
+#                 },
+#             },
+#             # https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMask
+#             "fields": "userEnteredFormat.backgroundColor"
+#         }
+#     }
 # }
 
-# resp = sheet.values().batchUpdate(spreadsheetId=sheet_id, body=body).execute()
+# лучше использовать массив
+body = {
+    "requests": [ # <<<<--- МАССИВ, так НАДО !!!
+        # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request#repeatcellrequest
+        {
+            "repeatCell": {
+                # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/other#GridRange
+                "range": {
+                    "sheetId": sheet_id,
+                    "startRowIndex": 2,
+                    "startColumnIndex": 2,
+                    "endColumnIndex": 7,
+                    "endRowIndex": 6,
+                },
+                # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/cells
+                # https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/cells#CellFormat
+                "cell": {
+                    "userEnteredFormat": {
+                        "backgroundColor": get_random_color(),
+                        "horizontalAlignment": "LEFT",
+                        "textFormat": {
+                            "foregroundColor": get_random_color(),
+                            "fontFamily": "Arial",
+                            "bold": False
+                        }
+                    },
+                },
+                # https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#google.protobuf.FieldMask
+                "fields": "userEnteredFormat.backgroundColor"
+            }
+        }
+    ]
+}
 
-
-print(resp)
+# https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/request
+resp = get_service_sacc().spreadsheets().batchUpdate(spreadsheetId=spreadsheet_id, body=body).execute()
